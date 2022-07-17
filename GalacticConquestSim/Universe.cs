@@ -17,7 +17,7 @@ namespace GalacticConquestSim
         private int pixel_size;
         Random rand = new Random();
 
-        private (Ship?, Colony?, Point, Point, Point)[,] plans;
+        private (Ship?, Colony?, Point, Point, Point, int)[,] plans;
         private bool[,] hasplan;
 
         public Universe(int width, int height, int pixel_size, int species_count, int planet_count)
@@ -80,7 +80,7 @@ namespace GalacticConquestSim
 
             this.pixel_size = pixel_size;
 
-            plans = new (Ship?, Colony?, Point, Point, Point)[width, height];
+            plans = new (Ship?, Colony?, Point, Point, Point, int)[width, height];
             hasplan = new bool[width, height];
         }
 
@@ -94,7 +94,11 @@ namespace GalacticConquestSim
             }
 
             if (colonies[x, y] != null)
+            {
+                if (colonies[x, y].population < 1)
+                    return Color.White;
                 return colonies[x, y].species.color;
+            }
 
             if (planets[x, y] != null)
                 return planets[x, y].color;
@@ -192,21 +196,6 @@ namespace GalacticConquestSim
                 s.Step();
             }
 
-            /*List<(Ship?, Colony?, Point, Point, Point)> plans = new List<(Ship?, Colony?, Point, Point, Point)>();
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    if (colonies[x, y] != null || ships[x, y] != null)
-                        plans.Add(StepInterior(x, y));
-                    if (planets[x, y] != null)
-                        planets[x, y].Step();
-                }
-            }*/
-
-            //(Ship?, Colony?, Point, Point, Point)[,] plans = new (Ship?, Colony?, Point, Point, Point)[width, height];
-            //bool[,] hasplan = new bool[width, height];
             if (height < width)
             {
                 Parallel.For(0, width, x =>
@@ -247,7 +236,7 @@ namespace GalacticConquestSim
                 {
                     if (hasplan[x, y])
                     {
-                        (Ship? newship, Colony? newcolony, Point attackpoint, Point newshiplocation, Point originallocation) = plans[x, y];
+                        (Ship? newship, Colony? newcolony, Point attackpoint, Point newshiplocation, Point originallocation, int shots) = plans[x, y];
                         if (newship != null)
                         {
                             ships[(int)newship.x, (int)newship.y] = newship;
@@ -269,7 +258,7 @@ namespace GalacticConquestSim
                                     {
                                         if (colonies[CC(attackpoint).X, CC(attackpoint).Y] != null)
                                         {
-                                            if (!colonies[CC(attackpoint).X, CC(attackpoint).Y].Attack())
+                                            if (!colonies[CC(attackpoint).X, CC(attackpoint).Y].Attack(shots))
                                                 colonies[CC(attackpoint).X, CC(attackpoint).Y] = null;
                                         }
                                     }
@@ -294,12 +283,14 @@ namespace GalacticConquestSim
         // Point1 is shooting location by a ship
         // Point2 is new ship location
         // Point3 is the original position of the moving ship
-        public (Ship?, Colony?, Point, Point, Point) StepInterior(int x, int y)
+        // int is number of shots
+        public (Ship?, Colony?, Point, Point, Point, int) StepInterior(int x, int y)
         {
             Ship? newship = null;
             Colony? newcolony = null;
             Point shootlocation = Point.Empty;
             Point newshiplocation = Point.Empty;
+            int shots = 0;
 
             if (colonies[x, y] != null)
             {
@@ -317,13 +308,13 @@ namespace GalacticConquestSim
 
                 (planet, colony_neighbors, ship_neighbors) = CountNeighbors(x, y);
 
-                (newcolony, shootlocation, newshiplocation) = ships[x, y].Step(planet, colony_neighbors, ship_neighbors, ships);
+                (newcolony, shootlocation, newshiplocation, shots) = ships[x, y].Step(planet, colony_neighbors, ship_neighbors, ships);
 
-                if (ships[x, y].age > rand.Next(400, 1000) * 10)
+                if (ships[x, y].age > rand.Next(400, 1000) * 2)
                     ships[x, y] = null;
             }
 
-            return (newship, newcolony, shootlocation, newshiplocation, new Point(x, y));
+            return (newship, newcolony, shootlocation, newshiplocation, new Point(x, y), shots);
         }
     }
 }

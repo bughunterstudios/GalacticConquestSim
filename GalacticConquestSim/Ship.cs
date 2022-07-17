@@ -16,7 +16,7 @@ namespace GalacticConquestSim
         public bool shoot;
         public int age;
 
-        //private float speed = 0.5f;
+        private float speed;
         private Random rand;
 
         public Ship(Species species, int weapons, int x, int y)
@@ -28,6 +28,7 @@ namespace GalacticConquestSim
             rand = new Random();
             direction = (float) rand.NextDouble() * 2f * MathF.PI;
             age = 0;
+            speed = species.speed;
         }
 
         public Point Coordinates()
@@ -37,12 +38,12 @@ namespace GalacticConquestSim
 
         private Point Move(Ship[,] ships)
         {
-            float new_x = x + MathF.Cos(direction) * species.speed;
+            float new_x = x + MathF.Cos(direction) * speed;
             if (new_x < 0)
                 new_x += species.universe.width;
             if (new_x >= species.universe.width)
                 new_x -= species.universe.width;
-            float new_y = y + MathF.Sin(direction) * species.speed;
+            float new_y = y + MathF.Sin(direction) * speed;
             if (new_y < 0)
                 new_y += species.universe.height;
             if (new_y >= species.universe.height)
@@ -63,7 +64,8 @@ namespace GalacticConquestSim
         // Colony shows weather the ship is destroyed and a colony created
         // Point shows an attack direction between (-1, -1) and (1, 1).
         // Second point shows the coordinates of the ship.
-        public (Colony?, Point, Point) Step(Planet planet, int[,] colony_neighbors, int[,] ship_neighbors, Ship[,] ships)
+        // int is shots.
+        public (Colony?, Point, Point, int) Step(Planet planet, int[,] colony_neighbors, int[,] ship_neighbors, Ship[,] ships)
         {
             shoot = false;
             age++;
@@ -71,7 +73,7 @@ namespace GalacticConquestSim
             if (planet != null && colony_neighbors[1, 1] == -1 && rand.Next(100) < species.expand_chance)
             {
                 if (planet.population_resource_total > 0)
-                    return (new Colony(species, planet, Coordinates()), Point.Empty, Coordinates());
+                    return (new Colony(species, planet, Coordinates()), Point.Empty, Coordinates(), 0);
                 else
                 {
                     if (planet.weapon_resource_total > 0)
@@ -91,8 +93,9 @@ namespace GalacticConquestSim
                         if (rand.Next(100) < species.violence_chance && weapons > 0)
                         {
                             shoot = true;
-                            weapons--;
-                            return (null, new Point((int) this.x + x - 1, (int) this.y + y - 1), Coordinates());
+                            int shots = rand.Next(1, weapons);
+                            weapons -= shots;
+                            return (null, new Point((int) this.x + x - 1, (int) this.y + y - 1), Coordinates(), shots);
                         }
                     }
 
@@ -102,21 +105,13 @@ namespace GalacticConquestSim
                         {
                             shoot = true;
                             weapons--;
-                            return (null, new Point((int)this.x + x - 1, (int) this.y + y - 1), Coordinates());
+                            return (null, new Point((int)this.x + x - 1, (int) this.y + y - 1), Coordinates(), 1);
                         }
                     }
-                    /*else  // Add neighbor as an enemy
-                    {
-                        if (ship_neighbors[x, y] != -1 && rand.Next(100) < species.violence_chance)
-                        {
-                            species.enemies[ship_neighbors[x, y]] = true;
-                            return (null, Point.Empty, Coordinates());
-                        }
-                    }*/
                 }
             }
 
-            return (null, Point.Empty, Move(ships));
+            return (null, Point.Empty, Move(ships), 0);
         }
     }
 }

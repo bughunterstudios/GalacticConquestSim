@@ -25,10 +25,10 @@ namespace GalacticConquestSim
             this.universe = universe;
             rand = new Random();
             violence_chance = rand.Next(1, 100);
-            max_weapons = rand.Next(1, 10);
+            max_weapons = rand.Next(1, 50);
             min_weapons = rand.Next(0, max_weapons);
             expand_chance = rand.Next(10, 100);
-            speed = (float) rand.NextDouble() * 2f;
+            speed = (float) rand.NextDouble() / 4f;
             enemies = new bool[total_species];
 
             color = Color.FromArgb(rand.Next(50, 150), rand.Next(50, 150), rand.Next(50, 150));

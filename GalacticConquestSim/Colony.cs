@@ -26,6 +26,9 @@ namespace GalacticConquestSim
             this.planet = planet;
             this.location = location;
             rand = new Random();
+
+            species.speed += planet.speed_change;
+            species.speed = Math.Min(species.speed, 2);
         }
 
         // Returns whether a new ship is built
@@ -60,9 +63,9 @@ namespace GalacticConquestSim
         }
 
         // Return true if still alive
-        public bool Attack()
+        public bool Attack(int shots)
         {
-            population--;
+            population -= shots;
             return population > 0;
         }
     }

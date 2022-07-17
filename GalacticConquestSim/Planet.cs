@@ -16,19 +16,21 @@ namespace GalacticConquestSim
         public int weapon_resource_total;
         public int change_chance;
         public int change_percentage;
+        public float speed_change;
         public Color color;
 
         public Planet()
         {
             Random rand = new Random();
-            ship_resource = Math.Max(rand.Next(0, 5), 1);
+            ship_resource = Math.Max(rand.Next(0, 20), 1);
             ship_resource_total = rand.Next(5000);
             population_resource = Math.Max(rand.Next(0, 5), 1);
-            population_resource_total = rand.Next(5000);
-            weapon_resource = Math.Max(rand.Next(0, 5), 1);
+            population_resource_total = rand.Next(3000);
+            weapon_resource = Math.Max(rand.Next(0, 20), 1);
             weapon_resource_total = rand.Next(5000);
-            change_chance = Math.Max(rand.Next(-10, 5), 0);
-            change_percentage = rand.Next(5);
+            change_chance = Math.Max(rand.Next(-40, 5), 0);
+            change_percentage = rand.Next(3);
+            speed_change = MathF.Max((float) rand.NextDouble() - 0.9f, 0f) / 50f;
             
             color = Color.FromArgb(rand.Next(100, 200), rand.Next(100, 200), rand.Next(100, 200));
         }
@@ -43,6 +45,7 @@ namespace GalacticConquestSim
             weapon_resource_total = copy.weapon_resource_total;
             change_chance = copy.change_chance;
             change_percentage = copy.change_percentage;
+            speed_change = copy.speed_change;
             color = copy.color;
         }
 

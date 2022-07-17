@@ -8,6 +8,8 @@ namespace GalacticConquestSim
         DirectBitmap drawarea;
         Universe board;
         int pixelsize = 1;
+        int species_count;
+        int planet_count;
 
         public Form1()
         {
@@ -15,6 +17,8 @@ namespace GalacticConquestSim
 
             DoubleBuffered = true;
 
+            species_count = (int) species_numeric.Value;
+            planet_count = (int) planets_numeric.Value;
             Setup();
 
             timer.Start();
@@ -25,7 +29,7 @@ namespace GalacticConquestSim
             drawarea = new DirectBitmap(picturebox.Size.Width, picturebox.Size.Height);
             picturebox.Image = drawarea.Bitmap;
 
-            board = new Universe(picturebox.Size.Width, picturebox.Size.Height, pixelsize, 50, 500);
+            board = new Universe(picturebox.Size.Width, picturebox.Size.Height, pixelsize, species_count, planet_count);
             board.DrawBoard(drawarea, picturebox);
         }
 
@@ -66,6 +70,18 @@ namespace GalacticConquestSim
         private void pixelsize_numeric_ValueChanged(object sender, EventArgs e)
         {
             pixelsize = (int)pixelsize_numeric.Value;
+            Setup();
+        }
+
+        private void species_numeric_ValueChanged(object sender, EventArgs e)
+        {
+            species_count = (int) species_numeric.Value;
+            Setup();
+        }
+
+        private void planets_numeric_ValueChanged(object sender, EventArgs e)
+        {
+            planet_count = (int) planets_numeric.Value;
             Setup();
         }
     }
